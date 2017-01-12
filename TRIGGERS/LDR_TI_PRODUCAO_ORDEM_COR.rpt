@@ -1,0 +1,57 @@
+﻿Text
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+create trigger [dbo].[LDR_TI_PRODUCAO_ORDEM_COR] 
+on [dbo].[PRODUCAO_ORDEM_COR]
+  for INSERT NOT FOR REPLICATION
+  as
+begin
+  declare  @numrows int,
+           @nullcnt int,
+           @validcnt int,
+           @insORDEM_PRODUCAO char(8), 
+           @insPRODUTO char(12), 
+           @insCOR_PRODUTO char(10),
+           @errno   int,
+           @errmsg  varchar(255)
+
+  select @numrows = @@rowcount
+/* PRODUCAO_ORDEM R/1140 PRODUCAO_ORDEM_COR ON CHILD INSERT RESTRICT */
+  if 
+     update(ORDEM_PRODUCAO)
+  begin
+    select @nullcnt = 0
+    select @validcnt = count(*)
+      from inserted, PRODUCAO_ORDEM, PRODUCAO_ORDEM_COR, (SELECT A.ORDEM_PRODUCAO,A.INICIO_REAL FROM PRODUCAO_TAREFAS A WHERE A.FASE_PRODUCAO='006') AS W_PRODUCAO_TAREFAS 
+     where 
+	       W_PRODUCAO_TAREFAS.ORDEM_PRODUCAO = PRODUCAO_ORDEM.ORDEM_PRODUCAO and 
+           PRODUCAO_ORDEM_COR.PRODUTO=inserted.PRODUTO and
+           PRODUCAO_ORDEM_COR.COR_PRODUTO = inserted.COR_PRODUTO and
+           PRODUCAO_ORDEM.ORDEM_PRODUCAO = PRODUCAO_ORDEM_COR.ORDEM_PRODUCAO and
+           DATEDIFF(DAY, W_PRODUCAO_TAREFAS.INICIO_REAL, GETDATE())>30 and 
+           PRODUCAO_ORDEM_COR.QTDE_P>0 AND PRODUCAO_ORDEM.FILIAL='DR VAREJO'
+
+    --- SELEÇÃO APENAS DA ORDEM DE PRODUÇÃO
+    select @insORDEM_PRODUCAO=PRODUCAO_ORDEM_COR.ORDEM_PRODUCAO
+      from inserted, PRODUCAO_ORDEM, PRODUCAO_ORDEM_COR, (SELECT A.ORDEM_PRODUCAO,A.INICIO_REAL FROM PRODUCAO_TAREFAS A WHERE A.FASE_PRODUCAO='006') AS W_PRODUCAO_TAREFAS 
+     where 
+	       W_PRODUCAO_TAREFAS.ORDEM_PRODUCAO = PRODUCAO_ORDEM.ORDEM_PRODUCAO and 
+           PRODUCAO_ORDEM_COR.PRODUTO=inserted.PRODUTO and
+           PRODUCAO_ORDEM_COR.COR_PRODUTO = inserted.COR_PRODUTO and
+           PRODUCAO_ORDEM.ORDEM_PRODUCAO = PRODUCAO_ORDEM_COR.ORDEM_PRODUCAO and
+           DATEDIFF(DAY, W_PRODUCAO_TAREFAS.INICIO_REAL, GETDATE())>30 and 
+           PRODUCAO_ORDEM_COR.QTDE_P>0 AND PRODUCAO_ORDEM.FILIAL='DR VAREJO'  
+           
+    if @validcnt > 0
+    begin
+      select @errno  = 30002,
+             @errmsg = 'Impossível Incluir #PRODUCAO_ORDEM_COR #porque existe #ORDEM DE PRODUÇÃO# '+RTRIM(@insORDEM_PRODUCAO)+' aberta por mais de 30 dias.'
+      goto error
+    end
+  end
+
+  return
+error:
+    raiserror @errno @errmsg
+    rollback transaction
+end
+

@@ -1,0 +1,6 @@
+﻿Text
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TRIGGER [Ldr_Produto_Cor_Entrega_Futura_delete_trigger] ON [Ldr_Produto_Cor_Entrega_Futura] FOR DELETE AS
+UPDATE [side] SET [sync_row_is_tombstone] = 1, [local_update_peer_key] = 0, [restore_timestamp] = NULL, [update_scope_local_id] = NULL, [last_
+change_datetime] = GETDATE() FROM [Ldr_Produto_Cor_Entrega_Futura_tracking] [side] JOIN DELETED AS [d] ON [side].[PRODUTO] = [d].[PRODUTO] AND [side].[COR_PRODUTO] = [d].[COR_PRODUTO]
+

@@ -1,0 +1,6 @@
+﻿Text
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TRIGGER [Ldr_Produto_Cor_Entrega_Futura_update_trigger] ON [Ldr_Produto_Cor_Entrega_Futura] FOR UPDATE AS
+UPDATE [side] SET [local_update_peer_key] = 0, [restore_timestamp] = NULL, [update_scope_local_id] = NULL, [last_change_datetime] = GETDATE() 
+FROM [Ldr_Produto_Cor_Entrega_Futura_tracking] [side] JOIN INSERTED AS [i] ON [side].[PRODUTO] = [i].[PRODUTO] AND [side].[COR_PRODUTO] = [i].[COR_PRODUTO]
+

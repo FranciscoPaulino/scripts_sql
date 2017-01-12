@@ -1,0 +1,10 @@
+﻿Text
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TRIGGER [Ldr_Produto_Cor_Entrega_Futura_insert_trigger] ON [Ldr_Produto_Cor_Entrega_Futura] FOR INSERT AS
+UPDATE [side] SET [sync_row_is_tombstone] = 0, [local_update_peer_key] = 0, [restore_timestamp] = NULL, [update_scope_local_id] = NULL, [last_
+change_datetime] = GETDATE() FROM [Ldr_Produto_Cor_Entrega_Futura_tracking] [side] JOIN INSERTED AS [i] ON [side].[PRODUTO] = [i].[PRODUTO] AND [side].[COR_PRODUTO] = [i].[COR_PRODUTO]
+INSERT INTO [Ldr_Produto_Cor_Entrega_Futura_tracking] ([i].[PRODUTO], 
+[i].[COR_PRODUTO], [create_scope_local_id], [local_create_peer_key], [local_create_peer_timestamp], [update_scope_local_id], [local_update_peer_key], [sync_row_is_tombstone], [last_change_datetime], [restore_timestamp]) SELECT [i].[PRODUTO], [i].[COR_PROD
+UTO], NULL, 0, @@DBTS+1, NULL, 0, 0, GETDATE() , NULL FROM INSERTED AS [i] LEFT JOIN [Ldr_Produto_Cor_Entrega_Futura_tracking] [side] ON [side].[PRODUTO] = [i].[PRODUTO] AND [side].[COR_PRODUTO] = [i].[COR_PRODUTO] WHERE [side].[PRODUTO] IS NULL AND [side
+].[COR_PRODUTO] IS NULL
+

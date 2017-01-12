@@ -1,0 +1,85 @@
+﻿Text
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+CREATE trigger [dbo].[DR_TU_VENDAS] on [dbo].[VENDAS]
+  for UPDATE NOT FOR REPLICATION
+  as
+begin
+  declare  @numrows int,
+           @nullcnt int,
+           @validcnt int,
+           @insPEDIDO char(12),
+           @errno   int,
+           @dias_limite_entrega int,
+           @errmsg  varchar(255)
+
+  select @numrows = @@rowcount
+  
+  select @insPEDIDO = PEDIDO from inserted
+
+  
+  -- Verificar se existe reserva de produto
+  if update(CODIGO_TAB_PRECO)
+  begin
+    select @nullcnt = 0
+
+    select @validcnt = count(*)
+    from inserted,VENDAS_PROD_EMBALADO
+    where inserted.PEDIDO = VENDAS_PROD_EMBALADO.PEDIDO
+
+    if @validcnt > 0
+    begin
+      select @errno  = 30007,
+             @errmsg = 'Impossível Atualizar  #VENDAS #porque existe #Reservas de Produto'
+      goto error
+    end
+  end
+
+  if
+    update(APROVACAO) 
+  begin
+    --- TRAZER O LIMITE MÍNIMO DE ENTREGA POR TIPO DE CLIENTE DEFINIDO EM PROPRIEDADE   
+      SELECT @dias_limite_entrega = 
+      CASE VALOR_PROPRIEDADE 
+            WHEN 'RENNER'           THEN 21                                                                
+            WHEN 'EXTRA'            THEN 23                                                                 
+            WHEN 'WALMART'          THEN 23                                                       
+            ELSE 27
+      END
+      FROM PROP_CLIENTES_ATACADO, inserted
+      WHERE inserted.CLIENTE_ATACADO = PROP_CLIENTES_ATACADO.CLIENTE_ATACADO AND 
+            inserted.FILIAL = 'D.R. LINGERIE' AND 
+              PROP_CLIENTES_ATACADO.PROPRIEDADE='00261' 
+
+    --- VERIFICAR QUAL É O PEDIDO 
+    select @nullcnt = 0
+    SELECT @insPEDIDO = inserted.PEDIDO
+    FROM VENDAS, inserted
+    WHERE (ABS(datediff(day,VENDAS.DATA_FATURAMENTO_RELATIVO,getdate())) < @dias_limite_entrega) AND 
+           VENDAS.PEDIDO = inserted.PEDIDO AND 
+           VENDAS.FILIAL='D.R. LINGERIE'    
+    
+    --- VERIFICAR SE PEDIDO ATENDE CONDIÇÃO
+    SELECT @validcnt = count(*)
+    FROM VENDAS, inserted
+    WHERE (ABS(datediff(day,VENDAS.DATA_FATURAMENTO_RELATIVO,getdate())) < @dias_limite_entrega) AND 
+           VENDAS.PEDIDO = inserted.PEDIDO AND 
+           VENDAS.FILIAL='D.R. LINGERIE'    
+
+    if @validcnt >= @numrows
+    begin
+      select @errno  = 30007,
+             @errmsg = 'Impossível Atualizar #VENDAS #porque #PERÍODO entre APROVAÇÃO e DATA_FATURAMENTO_RELATIVO do pedido ('+RTRIM(@insPEDIDO)+') está fora do limite mínimo'
+      goto error
+    end
+    
+  end
+
+  return
+error:
+  raiserror @errno @errmsg
+  rollback transaction
+end
+

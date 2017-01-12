@@ -1,0 +1,7 @@
+select * from CTB_BORDERO_PARCELA_CMD
+where LANCAMENTO_MOV = '320654' and ITEM_MOV = '48' and ID_PARCELA = 'A'
+
+delete from CTB_BORDERO_PARCELA_CMD
+where LANCAMENTO_MOV = '320654' and ITEM_MOV = '48'-- and ID_PARCELA = 'A'
+
+

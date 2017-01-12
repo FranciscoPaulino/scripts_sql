@@ -1,0 +1,42 @@
+﻿Text
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+CREATE trigger [dbo].[VAR_TI_CADASTRO_CLI_FOR] on [dbo].[CADASTRO_CLI_FOR]    
+  FOR INSERT NOT FOR REPLICATION    
+as    
+ /* UPDATE trigger on CADASTRO_CLI_FOR */    
+begin    
+	 declare @numrows int,    
+	   @nullcnt int,    
+	   @validcnt int,    
+	
+   @errno   int,    
+	   @errmsg  varchar(255)    
+	    
+	 select @numrows = @@rowcount    
+
+	 --IF NOT UPDATE(EMAIL_NFE)    
+	 --BEGIN    
+	 -- UPDATE  CADASTRO_CLI_FOR     
+	 -- SET     EMAIL_NFE = inserted.EMAIL
+	 -- FROM    CADASTRO_CLI_FOR, INSERTED 
+   
+	 -- WHERE   CADASTRO_CLI_FOR.NOME_CLIFOR = INSERTED.NOME_CLIFOR     
+	 -- AND (INSERTED.EMAIL_NFE IS NULL)    
+	 --END  
+	      
+	 UPDATE A  
+	 SET EXPORTADO=1 --,A.INDICADOR_FISCAL_TERCEIRO = (SELECT CASE WHEN (A1.RG_IE = '' OR A1.RG_IE = NULL OR A1
+.RG_IE = '0' ) THEN  '8' ELSE '2' END AS INDICADOR_FISCAL_TERCEIRO FROM INSERTED AS A1)
+	 FROM CADASTRO_CLI_FOR A    
+	 JOIN INSERTED X ON X.NOME_CLIFOR=A.NOME_CLIFOR
+     WHERE A.NOME_CLIFOR = X.NOME_CLIFOR AND A.INDICA_CLIENTE=1
+
+	 return    
+Error:    
+
+    raiserror @errno @errmsg    
+    rollback transaction    
+end 
+

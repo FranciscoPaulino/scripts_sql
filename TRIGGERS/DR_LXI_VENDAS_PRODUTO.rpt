@@ -1,0 +1,66 @@
+﻿Text
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+create Trigger [dbo].[DR_LXI_VENDAS_PRODUTO] On [dbo].[VENDAS_PRODUTO]  
+for INSERT NOT FOR REPLICATION
+AS   
+begin
+  declare  @numrows int,
+           @nullcnt int,
+           @validcnt int,
+           @errno   int,
+    	   @DATA_ENTREGA DATETIME,
+    	   @BLOQ_CARTEIRA_ENTREGA DATETIME,  
+    	   @VALOR_ATUAL_USER DATETIME,
+    	   @VALOR_ATUAL DATETIME,
+    	   @user varchar(255),
+           @errmsg  varchar(255)
+
+  select @numrows = @@rowcount
+/* nome do usuário logado */
+  SELECT @user = SUSER_SNAME()
+/* valor do parametro */
+  SELECT @VALOR_ATUAL_USER=CONVERT(DATETIME,VALOR_ATUAL_USER,103) FROM PARAMETROS_USERS  
+  WHERE PARAMETRO = 'BLOQ_CARTEIRA_ENTREGA' AND USUARIO=LTRIM(@user)
+  ---
+  SELECT @VALOR_ATUAL=CONVERT(DATETIME,VALOR_ATUAL,103) FROM PARAMETROS  
+  WHERE PARAMETRO = 'BLOQ_CARTEIRA_ENTREGA'
+  
+/* tabela vendas_produto */
+  if
+    update(ENTREGA)
+  begin
+    select @nullcnt = 0
+
+    -- PEGAR A DATA QUE ESTÁ ENTRANDO
+    select @DATA_ENTREGA = ENTREGA
+    from inserted
+
+    -- TESTAR A DATA
+    IF (RTRIM(LTRIM(@VALOR_ATUAL_USER))<>'')
+    BEGIN
+        --PRINT @VALOR_ATUAL_USER
+        if (@DATA_ENTREGA < @VALOR_ATUAL_USER)
+        begin
+            select @errno  = 30007,
+            @errmsg = 'Impossível Incluir  #VENDAS_PRODUTO #porque DATA ENTREGA fora do limite.'
+            goto error
+        end
+    END
+    ELSE
+    BEGIN    
+        --PRINT @VALOR_ATUAL
+        if (@DATA_ENTREGA < @VALOR_ATUAL)
+        begin
+            select @errno  = 30007,
+            @errmsg = 'Impossível Incluir  #VENDAS_PRODUTO #porque DATA ENTREGA fora do limite.'
+            goto error
+        end
+    END
+  end
+
+  return
+error:
+  raiserror @errno @errmsg
+  rollback transaction
+end
+

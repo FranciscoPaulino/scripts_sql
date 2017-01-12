@@ -1,0 +1,27 @@
+﻿Text
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+create Trigger [dbo].[VAR_TU_CTB_A_RECEBER_PARCELA] On [dbo].[CTB_A_RECEBER_PARCELA]
+For UPDATE NOT FOR REPLICATION
+As 
+Begin
+	IF UPDATE(VALOR_A_RECEBER)
+	BEGIN
+		UPDATE PROP_CLIENTES_ATACADO
+		SET VALOR_PROPRIEDADE=(VALOR_PROPRIEDADE - inserted.VALOR_ORIGINAL_PADRAO)
+		FROM CLIENTES_ATACADO, inserted, PROP_CLIENTES_ATACADO, CTB_A_RECEBER_FATURA, CTB_A_RECEBER_PARCELA
+		WHERE inserted.LANCAMENTO = CTB_A_RECEBER_FATURA.LANCAMENTO AND
+		      CTB_A_RECEBER_FATURA.ITEM = inserted.ITEM AND 
+			  CTB_A_RECEBER_PARCELA.LANCAMENTO = CTB_A_RECEBER_FATURA.LANCAMENTO AND
+		      CTB_A_RECEBER_FATURA.ITEM = CTB_A_RECEBER_PARCELA.ITEM AND 
+			  CTB_A_RECEBER_PARCELA.ID_PARCELA = inserted.ID_PARCELA AND 
+		      CTB_A_RECEBER_FATURA.COD_CLIFOR=CLIENTES_ATACADO.COD_CLIENTE AND 
+			  CLIENTES_ATACADO.FILIAL='DR VAREJO' AND 
+			  PROP_CLIENTES_ATACADO.CLIENTE_ATACADO=CLIENTES_ATACADO.CLIENTE_ATACADO AND
+			  PROP_CLIENTES_ATACADO.PROPRIEDADE='00307' AND 
+			  PROP_CLIENTES_ATACADO.VALOR_PROPRIEDADE <> '0' AND 
+			  inserted.VALOR_A_RECEBER = 0.00
+	END
+	-----------------------------------------------------------------------------------------------------
+	return
+End
+

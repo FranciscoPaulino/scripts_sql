@@ -1,0 +1,7 @@
+--- em tabela de preços colocar a filial para poder usar nesta versão
+
+--- TRANSPORTADORA_A_PAGAR NULL
+update ENTRADAS set LX_STATUS_REGISTRO = 3,TRANSPORTADORA_A_PAGAR='SEU TRANSPORTE' where LX_STATUS_REGISTRO is null
+
+select TRANSPORTADORA_A_PAGAR,* from ENTRADAS
+WHERE TRANSPORTADORA_A_PAGAR IS NOT NULL

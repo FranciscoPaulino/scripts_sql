@@ -1,0 +1,55 @@
+﻿Text
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE trigger [dbo].[DR_TU_PRODUCAO_PROGRAMA] 
+on [dbo].[PRODUCAO_PROGRAMA]
+  for UPDATE NOT FOR REPLICATION
+  as
+begin
+  declare  @numrows int,
+           @nullcnt int,
+           @validcnt int,
+		   @usr_confirma_programacao varchar(100),
+		   @tipo_p
+rogramacao_old varchar(100),
+		   @tipo_programacao int,
+           @errno   int,
+           @errmsg  varchar(255)
+
+  select @numrows = @@rowcount
+
+  if 
+     update(TIPO_PROGRAMACAO)
+  begin
+    select @usr_confirma_programacao = VALOR_ATUAL 
+	from PARAM
+ETROS 
+	where PARAMETRO = 'USR_CONFIRMA_PROGRAMACAO'
+
+	select @tipo_programacao = inserted.TIPO_PROGRAMACAO 
+	from inserted
+
+	select @tipo_programacao_old = deleted.TIPO_PROGRAMACAO 
+	from deleted
+
+	if (@tipo_programacao_old != 4)
+    begin
+		if (@tipo_pr
+ogramacao = 2) AND (CHARINDEX(SUSER_NAME(), @usr_confirma_programacao) = 0)
+		begin
+		  select @errno  = 30002,
+				 @errmsg = 'Impossível Atualizar #PRODUCAO_PROGRAMA #porque #USUÁRIO #não tem permissão para CONFIRMAR programação'
+		  goto error
+		end
+	e
+nd
+  end
+
+  return
+error:
+    raiserror @errno @errmsg
+    rollback transaction
+end
+
+
+

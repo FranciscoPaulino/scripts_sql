@@ -1,0 +1,48 @@
+USE [DRVAREJO]
+GO
+
+/****** Object:  Table [dbo].[SAW_REPOSITORAS]    Script Date: 07/23/2013 17:32:32 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+SET ANSI_PADDING ON
+GO
+
+CREATE TABLE [dbo].[SAW_REPOSITORAS](
+	[ID_REPOSITORA] [char](6) NOT NULL,
+	[NOME] [nvarchar](40) NULL,
+	[ENDERECO] [varchar](90) NULL,
+	[CEP] [dbo].[CEP] NULL,
+	[DDD] [char](2) NULL,
+	[TELEFONE] [dbo].[TELEFONE] NULL,
+	[EMAIL] [nvarchar](50) NULL,
+	[CPF] [char](14) NULL,
+	[RG] [char](20) NULL,
+	[CTPS] [char](25) NULL,
+	[BANCO] [char](25) NULL,
+	[AGENCIA] [char](10) NULL,
+	[TIPO_CONTA] [char](1) NULL,
+	[CONTA] [char](15) NULL,
+	[DATA_NASCIMENTO] [datetime] NULL,
+	[DATA_ADMISSAO] [datetime] NULL,
+	[DATA_DEMISSAO] [datetime] NULL,
+	[CIDADE] [varchar](35) NULL,
+	[UF] [char](2) NULL,
+	[REGIAO] [varchar](35) NULL,
+	[SUPERVISAO] [varchar](25) NULL,
+	[BAIRRO] [varchar](25) NULL,
+ CONSTRAINT [PK_SAW_REPOSITORAS] PRIMARY KEY CLUSTERED 
+(
+	[ID_REPOSITORA] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+

@@ -1,0 +1,27 @@
+
+exec sp_executesql N'
+/* VISUALLINX Execute(Alias:v_lf_apuracao)  */
+ EXEC lx_lf_apuracao_filial @P1,@P2,@P3,@P4,@P5,@P6,@P7,@P8,@P9,@P10,@P11,@P12,Null,@P13  ',N'@P1 int,@P2 varchar(6),@P3 int,@P4 int,@P5 int,@P6 datetime,@P7 datetime,@P8 varchar(1),@P9 int,@P10 varchar(1),@P11 varchar(1),@P12 varchar(1),@P13 int',1,'000001',1,2014,1,'2014-01-01 00:00:00','2014-01-31 00:00:00','0',0,NULL,NULL,NULL,1
+ 
+
+
+select SUM(VALOR_IMPOSTO_APURACAO) 
+from W_LF_REGISTRO_SAIDA_IMPOSTO
+where EMISSAO between '20140101' AND '20140131' and IMPOSTO='ICMS'
+
+select SUM(VALOR_IMPOSTO_APURACAO) 
+
+update W_LF_REGISTRO_SAIDA_IMPOSTO
+set VALOR_IMPOSTO_APURACAO=0
+where EMISSAO between '20140101' AND '20140131' and IMPOSTO='ICMS'
+
+
+
+SELECT SUM(VALOR_IMPOSTO_APURACAO) 
+SELECT * FROM LF_REGISTRO_SAIDA
+WHERE EMISSAO BETWEEN '20140101' AND '20140131' AND ID_IMPOSTO=1
+
+
+
+
+sp_helpTEXT W_LF_REGISTRO_SAIDA_IMPOSTO

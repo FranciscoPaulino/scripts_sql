@@ -1,0 +1,73 @@
+﻿Text
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE trigger [dbo].[LDR_TI_CTB_BORDERO_PARCELA_CMD]
+on [dbo].[CTB_BORDERO_PARCELA_CMD]
+  AFTER INSERT NOT FOR REPLICATION
+  as
+
+/* INSERT trigger on CTB_BORDERO_PARCELA_CMD */
+begin
+  declare  @numrows int,
+           @nullcnt int,
+           @validcnt 
+int,
+           @insEMPRESA int, 
+           @insLANCAMENTO_MOV int, 
+           @insLANCAMENTO int, 
+           @insITEM_MOV smallint, 
+           @insID_PARCELA char(2), 
+           @insLAYOUT char(4), 
+           @insOCORRENCIA varchar(10),
+           
+@delEMPRESA int, 
+           @delLANCAMENTO_MOV int, 
+           @delLANCAMENTO int, 
+           @delITEM_MOV smallint, 
+           @delID_PARCELA char(2), 
+           @delLX_TIPO_OCORRENCIA char(3), 
+           @delOCORRENCIA varchar(10),
+           @err
+no   int,
+           @errmsg  varchar(255)
+
+  select @numrows = @@rowcount
+/* CTB_LX_BORDERO_OCORRENCIA R/271 CTB_BORDERO_PARCELA_CMD ON CHILD INSERT RESTRICT */
+  select @nullcnt = 0
+
+  --- BUSCAR LANÇAMENTO E LAYOUT 
+  select @insLANCAMENTO = inserted.L
+ANCAMENTO, @insLAYOUT = LTRIM(RTRIM(CTB_BORDERO.LAYOUT))
+  from inserted, CTB_BORDERO
+  where inserted.LANCAMENTO = CTB_BORDERO.LANCAMENTO
+
+  IF @insLAYOUT = '0255'   
+  BEGIN
+     UPDATE FATURA
+     SET FATURA.LX_TIPO_DOCUMENTO='34' 
+     FROM CTB_A_RECEBER_FATURA FATURA
+     JOIN (SELECT * FROM (SELECT DISTINCT LANCAMENTO_MOV,ITEM_MOV,LANCAMENTO FROM CTB_BORDERO_PARCELA_CMD ) AS CTB_BORDERO_PARCELA_CMD) BORD ON BORD.LANCAMENTO_MOV=FATURA.LANCAMENTO AND BORD.ITEM_MOV=FATURA.ITEM
+     WHERE BORD.LANCAMENTO=@insLANCAMENTO 
+		
+     UPDATE PARC
+     SET PARC.DATA_ENVIO_SERASA=CONVERT(CHAR(10),GETDATE(),103),PARC.INDICA_PROTESTO=1
+     FROM CTB_A_RECEBER_PARCELA PARC
+     JOIN CTB_BORDERO_PARCELA_CMD B ON B.LANCAMENTO_MOV=PARC.LANCAMENTO AND B.ITEM_MOV=PARC.ITEM AND B.ID_PARCELA=PARC.ID_PARCELA
+     WHERE B.LANCAMENTO=@insLANCAMENTO
+  END   
+
+  IF @insLAYOUT = '0256'   
+  BEGIN
+     UPDATE PARC
+     SET PARC.DATA_BAIXA_SERASA=CONVERT(CHAR(10),GETDATE(),103),PARC.INDICA_PROTESTO=0
+     FROM CTB_A_RECEBER_PARCELA PARC
+     JOIN CTB_BORDERO_PARCELA_CMD B ON B.LANCAMENTO_MOV=PARC.LANCAMENTO AND B.ITEM_MOV=PARC.ITEM AND B.ID_PARCELA=PARC.ID_PARCELA
+     WHERE B.LANCAMENTO=@insLANCAMENTO
+  END   
+
+  return
+error:
+    raiserror (@errmsg, 16, 1)
+    rollback transaction
+end
+
+

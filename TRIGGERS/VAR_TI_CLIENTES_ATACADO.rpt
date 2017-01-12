@@ -1,0 +1,38 @@
+﻿Text
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE trigger [dbo].[VAR_TI_CLIENTES_ATACADO] on [dbo].[CLIENTES_ATACADO]
+  after INSERT NOT FOR REPLICATION
+  as
+begin
+  declare  @numrows int,
+           @nullcnt int,
+           @validcnt int,
+           @insCLIENTE_ATACADO varchar(25),
+           @errno   int,
+           @errmsg  varchar(255)
+
+/*---LINX-INSERT---------------------------------------------------------------------------------------*/
+    BEGIN
+		UPDATE 	CLIENTES_ATACADO 
+		SET 	CONCEITO = 'CLIENTE NOVO',LIMITE_CREDITO=5500,CTB_CONTA_CONTABIL='1120101'
+		FROM 	CLIENTES_ATACADO, INSERTED
+		WHERE 	CLIENTES_ATACADO.CLIENTE_ATACADO = INSERTED.CLIENTE_ATACADO AND inserted.FILIAL='DR VAREJO'
+	END
+/*-----------------------------------------------------------------------------------------------------*/
+/*--INCLUIR PROPRIEDADE PARA CLIENTE-------------------------------------------------------------------*/
+  --  BEGIN
+		--INSERT INTO PROP_CLIENTES_ATACADO (PROPRIEDADE,CLIENTE_ATACADO,ITEM_PROPRIEDADE,VALOR_PROPRIEDADE,DATA_PARA_TRANSFERENCIA)
+		--SELECT '00261',A.CLIENTE_ATACADO,'1','VAREJO',GETDATE() 
+		--FROM inserted A
+		--WHERE A.FILIAL='DR VAREJO' AND NOT EXISTS(SELECT * FROM PROP_CLIENTES_ATACADO WITH (NOLOCK) WHERE PROPRIEDADE='00261' AND CLIENTE_ATACADO=A.CLIENTE_ATACADO)
+  --  END 
+/*-----------------------------------------------------------------------------------------------------*/
+
+  return
+error:
+    raiserror @errno @errmsg
+    rollback transaction
+end
+
+
