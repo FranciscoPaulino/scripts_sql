@@ -2,68 +2,127 @@
 DECLARE @XML XML
 SET @XML = (
 SELECT CAST(BulkColumn AS XML)
-FROM OPENROWSET(BULK N'C:\TEMP\23161100119633000113550550000748531618035000.xml', SINGLE_BLOB) -- Informe onde se encontra o arquivo XML
+FROM OPENROWSET(BULK N'C:\TEMP\XML\23170100119633000113550560000276891726374190-procNFe.xml', SINGLE_BLOB) -- Informe onde se encontra o arquivo XML
 AS Arquivo)
 
 ;WITH XMLNAMESPACES(DEFAULT 'http://www.portalfiscal.inf.br/nfe') -- Este ponto deve ser informado o NAMESPACE (xmlns), senão informar esta linha ele não retorna.
-SELECT
-       NFe.value('../../../protNFe[1]/infProt[1]/chNFe[1]', 'varchar(44)') AS chNFe
-,      NFe.value('nNF[1]', 'int') AS nNF
-,      NFe.value('../emit[1]/CNPJ[1]','varchar(20)') AS CNPJ
-,      NFe.value('../emit[1]/enderEmit[1]/xLgr[1]','varchar(max)') AS xLgr
-,      NFe.value('../emit[1]/enderEmit[1]/nro[1]','varchar(50)') AS nro
-,      NFe.value('../emit[1]/enderEmit[1]/xBairro[1]','varchar(max)') AS xBairro
-FROM @XML.nodes('//infNFe/ide') AS NFes(NFe) -- Caminho que ira iniciar a varredura
 
+INSERT INTO XML_NFE_CAPA (chNFe,nProt,dhRecbto,cUF,cNF,natOp,indPag,mod,serie,nNF,dhEmi,dhSaiEnt,tpNF,idDest,cMunFG,tpImp,
+tpEmis,cDV,tpAmb,finNFe,indFinal,indPres,procEmi,emit_CNPJ,emit_xNome,emit_xFant,emit_xLgr,emit_nro,emit_xBairro,emit_cMun,
+emit_xMun,emit_UF,emit_CEP,emit_cPais,emit_xPais,emit_fone,emit_IE,emit_CRT,dest_CNPJ,dest_xNome,dest_xLgr,dest_nro,dest_xBairro,
+dest_cMun,dest_xMun,dest_UF,dest_CEP,dest_cPais,dest_xPais,dest_fone,dest_indIEDest,dest_IE,dest_email)
+
+SELECT
+    NFe.value('../../../protNFe[1]/infProt[1]/chNFe[1]', 'varchar(44)') as chNFe
+,	NFe.value('../../../protNFe[1]/infProt[1]/nProt[1]', 'varchar(20)') as nProt
+,	NFe.value('../../../protNFe[1]/infProt[1]/dhRecbto[1]', 'datetime') as dhRecbto
+,	NFe.value('cUF[1]', 'char(2)') as cUF
+,	NFe.value('cNF[1]', 'char(10)') AS cNF
+,	NFe.value('natOp[1]','varchar(max)') as natOp
+,	NFe.value('indPag[1]', 'int') as indPag
+,	NFe.value('mod[1]', 'int') as mod
+,	NFe.value('serie[1]','int') as serie
+,	NFe.value('nNF[1]','char(10)') as nNF
+,	NFe.value('dhEmi[1]','datetime') as dhEmi
+,	NFe.value('dhSaiEnt[1]','datetime') as dhSaiEnt
+,	NFe.value('tpNF[1]','int') as tpNF
+,	NFe.value('idDest[1]','int') as idDest
+,	NFe.value('cMunFG[1]','int') as cMunFG
+,	NFe.value('tpImp[1]','int') as tpImp
+,	NFe.value('tpEmis[1]','int') as tpEmis
+,	NFe.value('cDV[1]','int') as cDV
+,	NFe.value('tpAmb[1]','int') as tpAmb
+,	NFe.value('finNFe[1]','int') as finNFe
+,	NFe.value('indFinal[1]','int') as indFinal
+,	NFe.value('indPres[1]','int') as indPres
+,	NFe.value('procEmi[1]','int') as procEmi
+,	NFe.value('../emit[1]/CNPJ[1]','varchar(20)') as emit_CNPJ
+,	NFe.value('../emit[1]/xNome[1]','varchar(80)') as emit_xNome
+,	NFe.value('../emit[1]/xFant[1]','varchar(30)') as emit_xFant
+,	NFe.value('../emit[1]/enderEmit[1]/xLgr[1]','varchar(max)') as emit_xLgr
+,	NFe.value('../emit[1]/enderEmit[1]/nro[1]','varchar(50)') as emit_nro
+,	NFe.value('../emit[1]/enderEmit[1]/xBairro[1]','varchar(max)') as emit_xBairro
+,	NFe.value('../emit[1]/enderEmit[1]/cMun[1]','int') as emit_cMun
+,	NFe.value('../emit[1]/enderEmit[1]/xMun[1]','varchar(50)') as emit_xMun
+,	NFe.value('../emit[1]/enderEmit[1]/UF[1]','char(2)') as emit_UF
+,	NFe.value('../emit[1]/enderEmit[1]/CEP[1]','char(10)') as emit_CEP
+,	NFe.value('../emit[1]/enderEmit[1]/cPais[1]','char(6)') as emit_cPais
+,	NFe.value('../emit[1]/enderEmit[1]/xPais[1]','char(20)') as emit_xPais
+,	NFe.value('../emit[1]/enderEmit[1]/fone[1]','char(20)') as emit_fone
+,	NFe.value('../emit[1]/IE[1]','char(20)') as emit_IE
+,	NFe.value('../emit[1]/CRT[1]','int') as emit_CRT
+,	NFe.value('../dest[1]/CNPJ[1]','varchar(20)') as dest_CNPJ
+,	NFe.value('../dest[1]/xNome[1]','varchar(80)') as dest_xNome
+,	NFe.value('../dest[1]/enderDest[1]/xLgr[1]','varchar(max)') as dest_xLgr
+,	NFe.value('../dest[1]/enderDest[1]/nro[1]','varchar(50)') as dest_nro
+,	NFe.value('../dest[1]/enderDest[1]/xBairro[1]','varchar(max)') as dest_xBairro
+,	NFe.value('../dest[1]/enderDest[1]/cMun[1]','int') as dest_cMun
+,	NFe.value('../dest[1]/enderDest[1]/xMun[1]','varchar(50)') as dest_xMun
+,	NFe.value('../dest[1]/enderDest[1]/UF[1]','char(2)') as dest_UF
+,	NFe.value('../dest[1]/enderDest[1]/CEP[1]','char(10)') as dest_CEP
+,	NFe.value('../dest[1]/enderDest[1]/cPais[1]','char(6)') as dest_cPais
+,	NFe.value('../dest[1]/enderDest[1]/xPais[1]','char(20)') as dest_xPais
+,	NFe.value('../dest[1]/enderDest[1]/fone[1]','char(20)') as dest_fone
+,	NFe.value('../dest[1]/indIEDest[1]','int') as indIEDest
+,	NFe.value('../dest[1]/IE[1]','char(20)') as dest_IE
+,	NFe.value('../dest[1]/email[1]','varchar(80)') as dest_email
+FROM @XML.nodes('//infNFe/ide') AS NFes(NFe) -- Caminho que ira iniciar a varredura
 
 -- ITENS NFE
 DECLARE @XML XML
 SET @XML = (
 SELECT CAST(BulkColumn AS XML)
-FROM OPENROWSET(BULK N'C:\TEMP\23161100119633000113550550000748531618035000.xml', SINGLE_BLOB) -- Informe onde se encontra o arquivo XML
+FROM OPENROWSET(BULK N'C:\TEMP\XML\23170100119633000113550560000276891726374190-procNFe.xml', SINGLE_BLOB) -- Informe onde se encontra o arquivo XML
 AS Arquivo)
 
 ;WITH XMLNAMESPACES(DEFAULT 'http://www.portalfiscal.inf.br/nfe') -- Este ponto deve ser informado o NAMESPACE (xmlns), senão informar esta linha ele não retorna.
+
+INSERT INTO XML_NFE_ITEM(chNFe,nItem,cProd,cEAN,xProd,NCM,CFOP,uCom,qCom,vUnCom,vProd,cEANTrib,uTrib,qTrib,vUnTrib,indTot,infAdProd,
+vTotTrib,ICMS_orig,ICMS_CST,ICMS_modBC,ICMS_vBC,ICMS_pICMS,ICMS_vICMS,IPI_cEnq,IPI_CST,IPI_vBC,IPI_pIPI,IPI_vIPI,PIS_CST,PIS_vBC,
+PIS_pPIS,PIS_vPIS,COFINS_CST,COFINS_vBC,COFINS_pCOFINS,COFINS_vCOFINS)
+
 SELECT
        NFe.value('../../../protNFe[1]/infProt[1]/chNFe[1]', 'varchar(44)') AS chNFe
 ,      NFe.value('@nItem', 'int') AS nItem
-,      NFe.value('prod[1]/cProd[1]','varchar(max)') AS cProd
-,      NFe.value('prod[1]/cEAN[1]','varchar(max)') AS cEAN
+,      NFe.value('prod[1]/cProd[1]','varchar(50)') AS cProd
+,      NFe.value('prod[1]/cEAN[1]','varchar(30)') AS cEAN
 ,      NFe.value('prod[1]/xProd[1]','varchar(max)') AS xProd
-,      NFe.value('prod[1]/NCM[1]','varchar(max)') AS NCM
-,      NFe.value('prod[1]/CFOP[1]','varchar(max)') AS CFOP
-,      NFe.value('prod[1]/uCom[1]','varchar(max)') AS uCom
-,      NFe.value('prod[1]/qCom[1]','varchar(max)') AS qCom
-,      NFe.value('prod[1]/vUnCom[1]','varchar(max)') AS vUnCom
-,      NFe.value('prod[1]/vProd[1]','varchar(max)') AS vProd
-,      NFe.value('prod[1]/cEANTrib[1]','varchar(max)') AS cEANTrib
-,      NFe.value('prod[1]/uTrib[1]','varchar(max)') AS uTrib
-,      NFe.value('prod[1]/qTrib[1]','varchar(max)') AS qTrib
-,      NFe.value('prod[1]/vUnTrib[1]','varchar(max)') AS vUnTrib
-,      NFe.value('prod[1]/indTot[1]','varchar(max)') AS indTot
+,      NFe.value('prod[1]/NCM[1]','varchar(20)') AS NCM
+,      NFe.value('prod[1]/CFOP[1]','varchar(4)') AS CFOP
+,      NFe.value('prod[1]/uCom[1]','varchar(10)') AS uCom
+,      NFe.value('prod[1]/qCom[1]','numeric(15,4)') AS qCom
+,      NFe.value('prod[1]/vUnCom[1]','numeric(25,10)') AS vUnCom
+,      NFe.value('prod[1]/vProd[1]','numeric(15,2)') AS vProd
+,      NFe.value('prod[1]/cEANTrib[1]','varchar(30)') AS cEANTrib
+,      NFe.value('prod[1]/uTrib[1]','varchar(10)') AS uTrib
+,      NFe.value('prod[1]/qTrib[1]','numeric(15,4)') AS qTrib
+,      NFe.value('prod[1]/vUnTrib[1]','numeric(25,10)') AS vUnTrib
+,      NFe.value('prod[1]/indTot[1]','char(1)') AS indTot
+,      NFe.value('prod[1]/infAdProd[1]','varchar(max)') AS infAdProd
        -- ICMS 
-,      NFe.value('imposto[1]/ICMS[1]/ICMS00[1]/orig[1]','varchar(max)') AS ICMS_orig
-,      NFe.value('imposto[1]/ICMS[1]/ICMS00[1]/CST[1]','varchar(max)') AS ICMS_CST
-,      NFe.value('imposto[1]/ICMS[1]/ICMS00[1]/modBC[1]','varchar(max)') AS ICMS_modBC
-,      NFe.value('imposto[1]/ICMS[1]/ICMS00[1]/vBC[1]','varchar(max)') AS ICMS_vBC
-,      NFe.value('imposto[1]/ICMS[1]/ICMS00[1]/pICMS[1]','varchar(max)') AS ICMS_pICMS
-,      NFe.value('imposto[1]/ICMS[1]/ICMS00[1]/vICMS[1]','varchar(max)') AS ICMS_vICMS
+,      NFe.value('imposto[1]/vTotTrib[1]','numeric(14,2)') AS vTotTrib
+,      NFe.value('imposto[1]/ICMS[1]/ICMS40[1]/orig[1]','int') AS ICMS_orig
+,      NFe.value('imposto[1]/ICMS[1]/ICMS40[1]/CST[1]','char(5)') AS ICMS_CST
+,      NFe.value('imposto[1]/ICMS[1]/ICMS40[1]/modBC[1]','int') AS ICMS_modBC
+,      NFe.value('imposto[1]/ICMS[1]/ICMS40[1]/vBC[1]','numeric(14,2)') AS ICMS_vBC
+,      NFe.value('imposto[1]/ICMS[1]/ICMS40[1]/pICMS[1]','numeric(18,4)') AS ICMS_pICMS
+,      NFe.value('imposto[1]/ICMS[1]/ICMS40[1]/vICMS[1]','numeric(14,2)') AS ICMS_vICMS
        -- IPI
-,      NFe.value('imposto[1]/IPI[1]/cEnq[1]','varchar(max)') AS IPI_cEnq
-,      NFe.value('imposto[1]/IPI[1]/IPITrib[1]/CST[1]','varchar(max)') AS IPI_CST
-,      NFe.value('imposto[1]/IPI[1]/IPITrib[1]/vBC[1]','varchar(max)') AS IPI_vBC
-,      NFe.value('imposto[1]/IPI[1]/IPITrib[1]/pIPI[1]','varchar(max)') AS IPI_pIPI
-,      NFe.value('imposto[1]/IPI[1]/IPITrib[1]/vIPI[1]','varchar(max)') AS IPI_vIPI
+,      NFe.value('imposto[1]/IPI[1]/cEnq[1]','char(3)') AS IPI_cEnq
+,      NFe.value('imposto[1]/IPI[1]/IPITrib[1]/CST[1]','char(3)') AS IPI_CST
+,      NFe.value('imposto[1]/IPI[1]/IPITrib[1]/vBC[1]','numeric(14,2)') AS IPI_vBC
+,      NFe.value('imposto[1]/IPI[1]/IPITrib[1]/pIPI[1]','numeric(18,4)') AS IPI_pIPI
+,      NFe.value('imposto[1]/IPI[1]/IPITrib[1]/vIPI[1]','numeric(14,2)') AS IPI_vIPI
        -- PIS
-,      NFe.value('imposto[1]/PIS[1]/PISAliq[1]/CST[1]','varchar(max)') AS PIS_CST
-,      NFe.value('imposto[1]/PIS[1]/PISAliq[1]/vBC[1]','varchar(max)') AS PIS_vBC
-,      NFe.value('imposto[1]/PIS[1]/PISAliq[1]/pPIS[1]','varchar(max)') AS PIS_pPIS
-,      NFe.value('imposto[1]/PIS[1]/PISAliq[1]/vPIS[1]','varchar(max)') AS PIS_vPIS
+,      NFe.value('imposto[1]/PIS[1]/PISAliq[1]/CST[1]','char(3)') AS PIS_CST
+,      NFe.value('imposto[1]/PIS[1]/PISAliq[1]/vBC[1]','numeric(14,2)') AS PIS_vBC
+,      NFe.value('imposto[1]/PIS[1]/PISAliq[1]/pPIS[1]','numeric(18,4)') AS PIS_pPIS
+,      NFe.value('imposto[1]/PIS[1]/PISAliq[1]/vPIS[1]','numeric(14,2)') AS PIS_vPIS
        -- COFINS
-,      NFe.value('imposto[1]/COFINS[1]/COFINSAliq[1]/CST[1]','varchar(max)') AS COFINS_CST
-,      NFe.value('imposto[1]/COFINS[1]/COFINSAliq[1]/vBC[1]','varchar(max)') AS COFINS_vBC
-,      NFe.value('imposto[1]/COFINS[1]/COFINSAliq[1]/pCOFINS[1]','varchar(max)') AS COFINS_pCOFINS
-,      NFe.value('imposto[1]/COFINS[1]/COFINSAliq[1]/vCOFINS[1]','varchar(max)') AS COFINS_vCOFINS
+,      NFe.value('imposto[1]/COFINS[1]/COFINSAliq[1]/CST[1]','char(3)') AS COFINS_CST
+,      NFe.value('imposto[1]/COFINS[1]/COFINSAliq[1]/vBC[1]','numeric(14,2)') AS COFINS_vBC
+,      NFe.value('imposto[1]/COFINS[1]/COFINSAliq[1]/pCOFINS[1]','numeric(18,4)') AS COFINS_pCOFINS
+,      NFe.value('imposto[1]/COFINS[1]/COFINSAliq[1]/vCOFINS[1]','numeric(14,2)') AS COFINS_vCOFINS
 
 FROM @XML.nodes('//infNFe/det') AS NFes(NFe) -- Caminho que ira iniciar a varredura
 order by nItem
@@ -73,30 +132,33 @@ order by nItem
 DECLARE @XML XML
 SET @XML = (
 SELECT CAST(BulkColumn AS XML)
-FROM OPENROWSET(BULK N'C:\TEMP\23161100119633000113550550000748531618035000.xml', SINGLE_BLOB) -- Informe onde se encontra o arquivo XML
+FROM OPENROWSET(BULK N'C:\TEMP\XML\23170100119633000113550560000276891726374190-procNFe.xml', SINGLE_BLOB) -- Informe onde se encontra o arquivo XML
 AS Arquivo)
 
 ;WITH XMLNAMESPACES(DEFAULT 'http://www.portalfiscal.inf.br/nfe') -- Este ponto deve ser informado o NAMESPACE (xmlns), senão informar esta linha ele não retorna.
+
+INSERT INTO XML_NFE_TOTAL(chNFe,vBC,vICMS,vICMSDeson,vBCST,vST,vProd,vFrete,vSeg,vDesc,vII,vIPI,vPIS,vCOFINS,vOutro,vNF,vTotTrib)
 SELECT
        NFe.value('../../../protNFe[1]/infProt[1]/chNFe[1]', 'varchar(44)') AS chNFe
-,      NFe.value('ICMSTot[1]/vBC[1]','varchar(max)') AS vBC
-,      NFe.value('ICMSTot[1]/vICMS[1]','varchar(max)') AS vICMS
-,      NFe.value('ICMSTot[1]/vICMSDeson[1]','varchar(max)') AS vICMSDeson
-,      NFe.value('ICMSTot[1]/vBCST[1]','varchar(max)') AS vBCST
-,      NFe.value('ICMSTot[1]/vST[1]','varchar(max)') AS vST
-,      NFe.value('ICMSTot[1]/vProd[1]','varchar(max)') AS vProd
-,      NFe.value('ICMSTot[1]/vFrete[1]','varchar(max)') AS vFrete
-,      NFe.value('ICMSTot[1]/vSeg[1]','varchar(max)') AS vSeg
-,      NFe.value('ICMSTot[1]/vDesc[1]','varchar(max)') AS vDesc
-,      NFe.value('ICMSTot[1]/vII[1]','varchar(max)') AS vII
-,      NFe.value('ICMSTot[1]/vIPI[1]','varchar(max)') AS vIPI
-,      NFe.value('ICMSTot[1]/vPIS[1]','varchar(max)') AS vPIS
-,      NFe.value('ICMSTot[1]/vCOFINS[1]','varchar(max)') AS vCOFINS
-,      NFe.value('ICMSTot[1]/vOutro[1]','varchar(max)') AS vOutro
-,      NFe.value('ICMSTot[1]/vNF[1]','varchar(max)') AS vNF
-,      NFe.value('../cobr[1]/fat[1]/nFat[1]','varchar(max)') AS nFat
-,      NFe.value('../cobr[1]/fat[1]/vOrig[1]','varchar(max)') AS vOrig
-,      NFe.value('../cobr[1]/fat[1]/vLiq[1]','varchar(max)') AS vLiq
+,      NFe.value('ICMSTot[1]/vBC[1]','numeric(14,2)') AS vBC
+,      NFe.value('ICMSTot[1]/vICMS[1]','numeric(14,2)') AS vICMS
+,      NFe.value('ICMSTot[1]/vICMSDeson[1]','numeric(14,2)') AS vICMSDeson
+,      NFe.value('ICMSTot[1]/vBCST[1]','numeric(14,2)') AS vBCST
+,      NFe.value('ICMSTot[1]/vST[1]','numeric(14,2)') AS vST
+,      NFe.value('ICMSTot[1]/vProd[1]','numeric(14,2)') AS vProd
+,      NFe.value('ICMSTot[1]/vFrete[1]','numeric(14,2)') AS vFrete
+,      NFe.value('ICMSTot[1]/vSeg[1]','numeric(14,2)') AS vSeg
+,      NFe.value('ICMSTot[1]/vDesc[1]','numeric(14,2)') AS vDesc
+,      NFe.value('ICMSTot[1]/vII[1]','numeric(14,2)') AS vII
+,      NFe.value('ICMSTot[1]/vIPI[1]','numeric(14,2)') AS vIPI
+,      NFe.value('ICMSTot[1]/vPIS[1]','numeric(14,2)') AS vPIS
+,      NFe.value('ICMSTot[1]/vCOFINS[1]','numeric(14,2)') AS vCOFINS
+,      NFe.value('ICMSTot[1]/vOutro[1]','numeric(14,2)') AS vOutro
+,      NFe.value('ICMSTot[1]/vNF[1]','numeric(14,2)') AS vNF
+,      NFe.value('ICMSTot[1]/vTotTrib[1]','numeric(14,2)') AS vTotTrib
+--,      NFe.value('../cobr[1]/fat[1]/nFat[1]','numeric(14,2)') AS nFat
+--,      NFe.value('../cobr[1]/fat[1]/vOrig[1]','numeric(14,2)') AS vOrig
+--,      NFe.value('../cobr[1]/fat[1]/vLiq[1]','numeric(14,2)') AS vLiq
 FROM @XML.nodes('//infNFe/total') AS NFes(NFe) -- Caminho que ira iniciar a varredura
 
 
@@ -104,23 +166,25 @@ FROM @XML.nodes('//infNFe/total') AS NFes(NFe) -- Caminho que ira iniciar a varr
 DECLARE @XML XML
 SET @XML = (
 SELECT CAST(BulkColumn AS XML)
-FROM OPENROWSET(BULK N'C:\TEMP\23161100119633000113550550000748531618035000.xml', SINGLE_BLOB) -- Informe onde se encontra o arquivo XML
+FROM OPENROWSET(BULK N'C:\TEMP\XML\23170100119633000113550560000276891726374190-procNFe.xml', SINGLE_BLOB) -- Informe onde se encontra o arquivo XML
 AS Arquivo)
 
 ;WITH XMLNAMESPACES(DEFAULT 'http://www.portalfiscal.inf.br/nfe') -- Este ponto deve ser informado o NAMESPACE (xmlns), senão informar esta linha ele não retorna.
+
+INSERT INTO XML_NFE_TRANSPORTADOR(chNFe,modFrete,CNPJ,xNome,IE,xEnder,xMun,UF,qVol,esp,pesoL,pesoB)
 SELECT
        NFe.value('../../../protNFe[1]/infProt[1]/chNFe[1]', 'varchar(44)') AS chNFe
-,      NFe.value('modFrete[1]','varchar(max)') AS modFrete
-,      NFe.value('transporta[1]/CNPJ[1]','varchar(max)') AS CNPJ
-,      NFe.value('transporta[1]/xNome[1]','varchar(max)') AS xNome
-,      NFe.value('transporta[1]/IE[1]','varchar(max)') AS IE
+,      NFe.value('modFrete[1]','int') AS modFrete
+,      NFe.value('transporta[1]/CNPJ[1]','char(14)') AS CNPJ
+,      NFe.value('transporta[1]/xNome[1]','varchar(80)') AS xNome
+,      NFe.value('transporta[1]/IE[1]','char(20)') AS IE
 ,      NFe.value('transporta[1]/xEnder[1]','varchar(max)') AS xEnder
-,      NFe.value('transporta[1]/xMun[1]','varchar(max)') AS xMun
-,      NFe.value('transporta[1]/UF[1]','varchar(max)') AS UF
-,      NFe.value('vol[1]/qVol[1]','varchar(max)') AS qVol
-,      NFe.value('vol[1]/esp[1]','varchar(max)') AS esp
-,      NFe.value('vol[1]/pesoL[1]','varchar(max)') AS pesoL
-,      NFe.value('vol[1]/pesoB[1]','varchar(max)') AS pesoB
+,      NFe.value('transporta[1]/xMun[1]','varchar(35)') AS xMun
+,      NFe.value('transporta[1]/UF[1]','char(2)') AS UF
+,      NFe.value('vol[1]/qVol[1]','int') AS qVol
+,      NFe.value('vol[1]/esp[1]','varchar(40)') AS esp
+,      NFe.value('vol[1]/pesoL[1]','numeric(14,3)') AS pesoL
+,      NFe.value('vol[1]/pesoB[1]','numeric(14,3)') AS pesoB
 FROM @XML.nodes('//infNFe/transp') AS NFes(NFe) -- Caminho que ira iniciar a varredura
 
 
@@ -129,16 +193,22 @@ FROM @XML.nodes('//infNFe/transp') AS NFes(NFe) -- Caminho que ira iniciar a var
 DECLARE @XML XML
 SET @XML = (
 SELECT CAST(BulkColumn AS XML)
-FROM OPENROWSET(BULK N'C:\TEMP\23161100119633000113550550000748531618035000.xml', SINGLE_BLOB) -- Informe onde se encontra o arquivo XML
+FROM OPENROWSET(BULK N'C:\TEMP\XML\23170100119633000113550560000276891726374190-procNFe.xml', SINGLE_BLOB) -- Informe onde se encontra o arquivo XML
 AS Arquivo)
 
 ;WITH XMLNAMESPACES(DEFAULT 'http://www.portalfiscal.inf.br/nfe') -- Este ponto deve ser informado o NAMESPACE (xmlns), senão informar esta linha ele não retorna.
+
+INSERT INTO XML_NFE_DUPLICATA(chNFe,nFat,vOrig,vLiq,nDup,dVenc,vDup)
 SELECT
        NFe.value('../../../../protNFe[1]/infProt[1]/chNFe[1]', 'varchar(44)') AS chNFe
-,      NFe.value('nDup[1]','varchar(max)') AS nDup
-,      NFe.value('dVenc[1]','varchar(max)') AS dVenc
-,      NFe.value('vDup[1]','varchar(max)') AS vDup
+,      NFe.value('../fat[1]/nFat[1]','char(10)') AS nFat
+,      NFe.value('../fat[1]/vOrig[1]','numeric(14,2)') AS vOrig
+,      NFe.value('../fat[1]/vLiq[1]','numeric(14,2)') AS vLiq
+,      NFe.value('nDup[1]','char(10)') AS nDup
+,      NFe.value('dVenc[1]','datetime') AS dVenc
+,      NFe.value('vDup[1]','numeric(14,2)') AS vDup
 FROM @XML.nodes('//infNFe/cobr/dup') AS NFes(NFe) -- Caminho que ira iniciar a varredura
+
 
 -- tabelas auxiliares
 CREATE TABLE [dbo].[XML_NFE_CAPA](
@@ -338,3 +408,57 @@ SELECT
     EventKind =Events.value('(EventKind)[1]', 'varchar(20)')
 FROM
  @XML.nodes('/EventSchedule/Event') AS XTbl(Events)
+
+
+
+--- entrada ordem de serviço
+---
+INSERT INTO ENTRADAS (NF_ENTRADA,NOME_CLIFOR,EMISSAO,FILIAL,EMPRESA,AGRUPAMENTO_ITENS,COD_TRANSACAO,NATUREZA,CONDICAO_PGTO,RECEBIMENTO,NF_FATURA,SERIE_NF_ENTRADA,TABELA_FILHA,TRANSF_FILIAL,TIPO_ENTRADAS,MOEDA,MOEDA_COMPRA,DATA_DIGITACAO,RATEIO_FILIAL,RATEIO_CENTRO_CUSTO,DATA_FATURAMENTO_RELATIVO,UTILIZA_DIAS_FIXOS_FORNECEDOR,NOME_CLIFOR_TRIANGULAR,SERIE_NF,NUMERO_ENTRADA,FATURA_NOME_CLIFOR,FATURA_SERIE,FATURA_NUMERO,DIFERENCA_VALOR,QTDE_TOTAL,VALOR_TOTAL,FRETE_A_PAGAR,IMPORTACAO_IMPOSTO,IMPORTACAO_ICMS,IMPORTACAO_IPI,IMPORTACAO_ALFANDEGA,IMPORTACAO_OUTRAS_DESPESAS,IMPORTACAO_FRETE,IMPORTACAO_SEGURO,IMPORTACAO_DESEMBARACO,PORC_DESCONTO,PORC_ENCARGO,COMISSAO_VALOR,COMISSAO_VALOR_GERENTE,VALOR_IMPOSTO_AGREGAR,VALOR_SUB_ITENS,CAMBIO_NA_DATA,ESPECIE_SERIE,NOTA_CANCELADA,COD_CLIFOR_SACADO,IMPORTACAO_TX_CAPATAZIA,CHAVE_NFE) 
+SELECT REPLICATE(0, (7-LEN(RTRIM(A.nNF))))+RTRIM(A.nNF) AS NF_ENTRADA,C.NOME_CLIFOR,A.dhEmi,D.NOME_CLIFOR,1,1,'ENTRADAS_108','230.01         ','000',A.dhSaiEnt,0,A.serie,'ENTRADAS_NF       ',0,'BENEFICIAMENTO           ','R$    ','R$    ',GETDATE(),D.CLIFOR,'21             ',NULL,0,C.NOME_CLIFOR,NULL,NULL,NULL,NULL,NULL,0,10.000,100.00000,1,0,0,0,0,0,0,0,0,0,0,0,0,0,100.00,1.000000,3,0,'600216',0,'23130207938560000130551020000000011756173353'
+FROM XML_NFE_CAPA A
+JOIN XML_NFE_TOTAL B ON B.chNFe=A.chNFe
+JOIN (SELECT CLIFOR,CGC_CPF,NOME_CLIFOR,RAZAO_SOCIAL FROM CADASTRO_CLI_FOR WHERE CLIFOR='600132') C ON C.CGC_CPF=A.emit_CNPJ
+JOIN (SELECT CLIFOR,CGC_CPF,NOME_CLIFOR,RAZAO_SOCIAL FROM CADASTRO_CLI_FOR WHERE CLIFOR='601496') D ON D.CGC_CPF=A.dest_CNPJ
+
+exec sp_executesql N'INSERT INTO ENTRADAS 
+(NF_ENTRADA,NOME_CLIFOR,EMISSAO,FILIAL,EMPRESA,AGRUPAMENTO_ITENS,COD_TRANSACAO,NATUREZA,CONDICAO_PGTO,RECEBIMENTO,NF_FATURA,SERIE_NF_ENTRADA,TABELA_FILHA,TRANSF_FILIAL,TIPO_ENTRADAS,MOEDA,MOEDA_COMPRA,DATA_DIGITACAO,RATEIO_FILIAL,RATEIO_CENTRO_CUSTO,DATA_FATURAMENTO_RELATIVO,UTILIZA_DIAS_FIXOS_FORNECEDOR,NOME_CLIFOR_TRIANGULAR,SERIE_NF,NUMERO_ENTRADA,FATURA_NOME_CLIFOR,FATURA_SERIE,FATURA_NUMERO,DIFERENCA_VALOR,QTDE_TOTAL,VALOR_TOTAL,FRETE_A_PAGAR,IMPORTACAO_IMPOSTO,IMPORTACAO_ICMS,IMPORTACAO_IPI,IMPORTACAO_ALFANDEGA,IMPORTACAO_OUTRAS_DESPESAS,IMPORTACAO_FRETE,IMPORTACAO_SEGURO,IMPORTACAO_DESEMBARACO,PORC_DESCONTO,PORC_ENCARGO,COMISSAO_VALOR,COMISSAO_VALOR_GERENTE,VALOR_IMPOSTO_AGREGAR,VALOR_SUB_ITENS,CAMBIO_NA_DATA,ESPECIE_SERIE,NOTA_CANCELADA,COD_CLIFOR_SACADO,IMPORTACAO_TX_CAPATAZIA,CHAVE_NFE) 
+VALUES (@P1 ,@P2 ,@P3 ,@P4 ,@P5 ,@P6 ,@P7 ,@P8 ,@P9 ,@P10 ,@P11 ,@P12 ,@P13 ,@P14 ,@P15 ,@P16 ,@P17 ,@P18 ,@P19 ,@P20 ,@P21 ,@P22 ,@P23 ,@P24 ,@P25 ,@P26 ,@P27 ,@P28 ,@P29 ,@P30 ,@P31 ,@P32 ,@P33 ,@P34 ,@P35 ,@P36 ,@P37 ,@P38 ,@P39 ,@P40 ,@P41 ,@P42 ,@P43 ,@P44 ,@P45 ,@P46 ,@P47 ,@P48 ,@P49 ,@P50 ,@P51 ,@P52 )',N'@P1 varchar(15),@P2 varchar(25),@P3 datetime,@P4 varchar(25),@P5 int,@P6 smallint,@P7 varchar(23),@P8 varchar(15),@P9 varchar(3),@P10 datetime,@P11 bit,@P12 varchar(6),@P13 varchar(18),@P14 bit,@P15 varchar(25),@P16 varchar(6),@P17 varchar(6),@P18 datetime,@P19 varchar(15),@P20 varchar(15),@P21 datetime,@P22 bit,@P23 varchar(25),@P24 varchar(3),@P25 int,@P26 varchar(25),@P27 varchar(6),@P28 varchar(15),@P29 bit,@P30 numeric(10,3),@P31 numeric(15,5),@P32 tinyint,@P33 numeric(14,2),@P34 numeric(14,2),@P35 numeric(14,2),@P36 numeric(14,2),@P37 numeric(14,2),@P38 numeric(14,2),@P39 numeric(14,2),@P40 numeric(14,2),@P41 numeric(13,10),@P42 numeric(13,10),@P43 numeric(14,2),@P44 numeric(14,2),@P45 numeric(14,2),@P46 numeric(14,2),@P47 numeric(15,6),@P48 int,@P49 bit,@P50 varchar(6),@P51 numeric(14,2),@P52 varchar(44)','452415         ','JULIETE                  ','2013-04-07 00:00:00','DR VAREJO                ',1,1,'ENTRADAS_108           ','240.01         ','000','2013-04-07 00:00:00',0,'1     ','ENTRADAS_NF       ',0,'BENEFICIAMENTO           ','R$    ','R$    ','2013-04-07 00:00:00','000001         ','31             ',NULL,0,'JULIETE                  ',NULL,NULL,NULL,NULL,NULL,0,10.000,100.00000,1,0,0,0,0,0,0,0,0,0,0,0,0,0,100.00,1.000000,3,0,'600216',0,'23130207938560000130551020000000011756173353'
+
+
+
+SELECT * FROM  FILIAIS
+WHERE COD_FILIAL='601496'
+
+SELECT * FROM W_CTB_RATEIO_FILIAIS
+
+SELECT * FROM XML_NFE_CAPA
+
+SELECT * FROM ENTRADAS
+
+exec sp_executesql N'INSERT INTO ENTRADAS_ITEM 
+(NOME_CLIFOR,NF_ENTRADA,SERIE_NF_ENTRADA,ITEM_IMPRESSAO,SUB_ITEM_TAMANHO,DESCRICAO_ITEM,QTDE_ITEM,PRECO_UNITARIO,CODIGO_ITEM,DESCONTO_ITEM,VALOR_ITEM,COD_TABELA_FILHA,TRIBUT_ICMS,TRIBUT_ORIGEM,UNIDADE,CLASSIF_FISCAL,CODIGO_FISCAL_OPERACAO,PESO,CONTA_CONTABIL,QTDE_RETORNAR_BENEFICIAMENTO,FAIXA,COMISSAO_ITEM,COMISSAO_ITEM_GERENTE,INDICADOR_CFOP,QTDE_DEVOLVIDA,PORCENTAGEM_ITEM_RATEIO,ID_EXCECAO_IMPOSTO,REFERENCIA,REFERENCIA_ITEM,REFERENCIA_PEDIDO,TIMESTAMP,VALOR_ENCARGOS,VALOR_DESCONTOS,NAO_SOMA_VALOR,VALOR_ENCARGOS_IMPORTACAO,RATEIO_FILIAL,RATEIO_CENTRO_CUSTO,VALOR_ENCARGOS_ADUANEIROS,PORC_ITEM_RATEIO_FRETE,ITEM_NFE,MPADRAO_SEGURO_ITEM,MPADRAO_FRETE_ITEM,MPADRAO_ENCARGO_ITEM,ORIGEM_ITEM) 
+VALUES (@P1 ,@P2 ,@P3 ,@P4 ,@P5 ,@P6 ,@P7 ,@P8 ,@P9 ,@P10 ,@P11 ,@P12 ,@P13 ,@P14 ,@P15 ,@P16 ,@P17 ,@P18 ,@P19 ,@P20 ,@P21 ,@P22 ,@P23 ,@P24 ,@P25 ,@P26 ,@P27 ,@P28 ,@P29 ,@P30 ,@P31 ,@P32 ,@P33 ,@P34 ,@P35 ,@P36 ,@P37 ,@P38 ,@P39 ,@P40 ,@P41 ,@P42 ,@P43 ,@P44 )',N'@P1 varchar(25),@P2 varchar(15),@P3 varchar(6),@P4 varchar(4),@P5 int,@P6 varchar(80),@P7 numeric(9,3),@P8 numeric(15,5),@P9 varchar(50),@P10 numeric(15,5),@P11 numeric(14,2),@P12 varchar(1),@P13 varchar(3),@P14 varchar(3),@P15 varchar(5),@P16 varchar(10),@P17 varchar(4),@P18 numeric(9,5),@P19 varchar(20),@P20 numeric(9,3),@P21 varchar(1),@P22 numeric(8,5),@P23 numeric(8,5),@P24 tinyint,@P25 numeric(9,3),@P26 numeric(13,10),@P27 int,@P28 varchar(50),@P29 varchar(12),@P30 varchar(12),@P31 varchar(25),@P32 numeric(14,2),@P33 numeric(14,2),@P34 bit,@P35 numeric(14,2),@P36 varchar(15),@P37 varchar(15),@P38 numeric(14,2),@P39 numeric(13,10),@P40 smallint,@P41 numeric(14,2),@P42 numeric(14,2),@P43 numeric(14,2),@P44 varchar(1)','JULIETE                  ','452415         ','1     ','0001',0,' BIQUINI FITINESS BRANCO                                                        ',10.000,10.00000,'51015BC0035                                       ',0,100.00,'R','90 ','0  ','PÇ   ','6108.2100 ','1902',0,NULL,0,'1',0,0,10,0,100.0000000000,743,'51015                                             ','BC0035      ',NULL,'ÆÆÆÆÆÆÆÆÆÆÆÆ31Ø11111     ',0,0,0,0,'000001         ','31             ',0,100.0000000000,1,0,0,0,'P'
+
+
+
+exec sp_executesql N'INSERT INTO ENTRADAS_IMPOSTO (NOME_CLIFOR,NF_ENTRADA,SERIE_NF_ENTRADA,ITEM_IMPRESSAO,SUB_ITEM_TAMANHO,AGREGA_APOS_DESCONTO,TAXA_IMPOSTO,VALOR_IMPOSTO,BASE_IMPOSTO,TAXA_IMPOSTO_ESPELHO,VALOR_IMPOSTO_ESPELHO,BASE_IMPOSTO_ESPELHO,AGREGA_APOS_ENCARGO,ID_IMPOSTO,INCIDENCIA,TAXA_IMPOSTO_CALC,VALOR_IMPOSTO_CALC,BASE_IMPOSTO_CALC) VALUES (@P1 ,@P2 ,@P3 ,@P4 ,@P5 ,@P6 ,@P7 ,@P8 ,@P9 ,@P10 ,@P11 ,@P12 ,@P13 ,@P14 ,@P15 ,@P16 ,@P17 ,@P18 )',N'@P1 varchar(25),@P2 varchar(15),@P3 varchar(6),@P4 varchar(4),@P5 int,@P6 bit,@P7 numeric(8,5),@P8 numeric(14,2),@P9 numeric(14,2),@P10 numeric(8,5),@P11 numeric(14,2),@P12 numeric(14,2),@P13 bit,@P14 tinyint,@P15 tinyint,@P16 numeric(8,5),@P17 numeric(14,2),@P18 numeric(14,2)','JULIETE                  ','452415         ','1     ','0001',0,0,0,0,0,0,0,0,0,2,1,0,0,0
+
+
+exec sp_executesql N'
+/* VISUALLINX ExecuteNonQuery()  */
+   UPDATE ENTRADAS SET INFORMACAO_COMPLEMENTAR = '' IPI REDUZIDO A ZERO CONF. DECRETO 6.006 DE 28/12/2006.''  WHERE NF_ENTRADA = @P1 AND SERIE_NF_ENTRADA = @P2 AND NOME_CLIFOR = @P3 ',N'@P1 varchar(6),@P2 varchar(1),@P3 varchar(7)','452415','1','JULIETE'
+   
+   
+exec sp_executesql N'
+/* VISUALLINX ExecuteNonQuery()  */
+  EXEC LX_CTB_Integrar_Entrada @P1, @P2, @P3',N'@P1 varchar(7),@P2 varchar(6),@P3 varchar(1)','JULIETE','452415','1'
+  
+  
+  
+  exec sp_executesql N'
+/* VISUALLINX ExecuteNonQuery()  
+
+  DELETE FROM ENTRADAS_OBSERVACAO WHERE NF_ENTRADA = @P1 AND SERIE_NF_ENTRADA = @P2 AND NOME_CLIFOR = @P3',N'@P1 varchar(6),@P2 varchar(1),@P3 varchar(7)','452415','1','JULIETE'
+
+--- gera impostos 
+EXEC LX_GERA_IMPOSTOS_ENTRADA ' D R LING','19519','56',1,1,1

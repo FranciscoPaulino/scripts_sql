@@ -1,5 +1,5 @@
-EXEC LX_RECALCULO_OP '89497','89497'
-EXEC LX_VERIFICA_OP '181037','181037',1
+EXEC LX_RECALCULO_OP '219642','219642'
+EXEC LX_VERIFICA_OP '219642','219642',1
 EXEC LX_ZERA_OP '85439','N'
 
 ---- APAGAR MOVIMENTAÇÃO EM DUPLICIDADE EM PRODUCAO_TAREFAS_SALDO
@@ -7,9 +7,9 @@ DELETE FROM PRODUCAO_TAREFAS_SALDO
 WHERE TAREFA IN (
 SELECT TAREFA FROM PRODUCAO_TAREFAS_SALDO PTS
 WHERE PTS.ORDEM_PRODUCAO IN (
-'182929',
-'180104',
-'186909'
+'217831',
+'218489',
+'218537'
 ) AND NOT EXISTS(
 select b.tarefa, b.qtde_em_processo, a.produto, a.cor_produto 
 from producao_ordem_cor a left join producao_tarefas b on a.ordem_producao = b.ordem_producao
@@ -28,20 +28,129 @@ HAVING SUM(A.QTDE_S) > B.QTDE_EM_PRODUCAO
 SELECT 'EXEC LX_RECALCULO_OP '''+RTRIM(A.ORDEM_PRODUCAO)+''','''+RTRIM(A.ORDEM_PRODUCAO)+'''',SUM(A.QTDE_S) 
 FROM PRODUCAO_TAREFAS_SALDO A with (nolock)
 JOIN PRODUCAO_ORDEM B with (nolock) ON B.ORDEM_PRODUCAO=A.ORDEM_PRODUCAO
-WHERE B.FILIAL='DR VAREJO'
+--WHERE B.FILIAL='DR VAREJO'
 GROUP BY A.ORDEM_PRODUCAO,B.QTDE_EM_PRODUCAO
 HAVING SUM(A.QTDE_S) > B.QTDE_EM_PRODUCAO
 
 
 SELECT 'EXEC LX_RECALCULO_OP '''+RTRIM(A.ORDEM_PRODUCAO)+''','''+RTRIM(A.ORDEM_PRODUCAO)+'''',SUM(A.QTDE_S) FROM PRODUCAO_TAREFAS_SALDO A with (nolock)
 JOIN PRODUCAO_ORDEM B with (nolock) ON B.ORDEM_PRODUCAO=A.ORDEM_PRODUCAO
-WHERE B.FILIAL='DR VAREJO'
+--WHERE B.FILIAL='DR VAREJO'
 GROUP BY A.ORDEM_PRODUCAO,B.QTDE_EM_PRODUCAO
 HAVING SUM(A.QTDE_S) < B.QTDE_EM_PRODUCAO
 
-
-DELETE FROM PRODUCAO_TAREFAS_SALDO
-WHERE ORDEM_PRODUCAO='178909' and TAREFA='1402613'
+INSERT INTO [dbo].[PRODUCAO_TAREFAS_SALDO]
+           ([TAREFA]
+           ,[ORDEM_PRODUCAO]
+           ,[PRODUTO]
+           ,[COR_PRODUTO]
+           ,[QTDE_S]
+           ,[S1]
+           ,[S2]
+           ,[S3]
+           ,[S4]
+           ,[S5]
+           ,[S6]
+           ,[S7]
+           ,[S8]
+           ,[S9]
+           ,[S10]
+           ,[S11]
+           ,[S12]
+           ,[S13]
+           ,[S14]
+           ,[S15]
+           ,[S16]
+           ,[S17]
+           ,[S18]
+           ,[S19]
+           ,[S20]
+           ,[S21]
+           ,[S22]
+           ,[S23]
+           ,[S24]
+           ,[S25]
+           ,[S26]
+           ,[S27]
+           ,[S28]
+           ,[S29]
+           ,[S30]
+           ,[S31]
+           ,[S32]
+           ,[S33]
+           ,[S34]
+           ,[S35]
+           ,[S36]
+           ,[S37]
+           ,[S38]
+           ,[S39]
+           ,[S40]
+           ,[S41]
+           ,[S42]
+           ,[S43]
+           ,[S44]
+           ,[S45]
+           ,[S46]
+           ,[S47]
+           ,[S48]
+           ,[ULTIMO_CUSTO_PREVISTO])
+select     '1805852'
+           ,[ORDEM_PRODUCAO]
+           ,[PRODUTO]
+           ,[COR_PRODUTO]
+           ,60
+           ,0
+           ,0
+           ,0
+           ,0
+           ,60
+           ,[S6]
+           ,[S7]
+           ,[S8]
+           ,[S9]
+           ,[S10]
+           ,[S11]
+           ,[S12]
+           ,[S13]
+           ,[S14]
+           ,[S15]
+           ,[S16]
+           ,[S17]
+           ,[S18]
+           ,[S19]
+           ,[S20]
+           ,[S21]
+           ,[S22]
+           ,[S23]
+           ,[S24]
+           ,[S25]
+           ,[S26]
+           ,[S27]
+           ,[S28]
+           ,[S29]
+           ,[S30]
+           ,[S31]
+           ,[S32]
+           ,[S33]
+           ,[S34]
+           ,[S35]
+           ,[S36]
+           ,[S37]
+           ,[S38]
+           ,[S39]
+           ,[S40]
+           ,[S41]
+           ,[S42]
+           ,[S43]
+           ,[S44]
+           ,[S45]
+           ,[S46]
+           ,[S47]
+           ,[S48]
+           ,[ULTIMO_CUSTO_PREVISTO]
+from PRODUCAO_TAREFAS_SALDO
+--select * FROM PRODUCAO_TAREFAS_SALDO
+WHERE ORDEM_PRODUCAO='219642'
 
 
 SELECT * FROM PRODUCAO_ORDEM_SERVICO

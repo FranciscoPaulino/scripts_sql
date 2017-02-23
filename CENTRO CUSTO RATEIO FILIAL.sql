@@ -1,0 +1,16 @@
+select * from ctb_lancamento
+where LANCAMENTO='3984'
+
+
+select * from ctb_lancamento_item
+where LX_TIPO_LANCAMENTO='ITR' AND LANCAMENTO IN(640,862)
+
+
+update CTB_LANCAMENTO_ITEM
+set RATEIO_FILIAL='000024'
+where LX_TIPO_LANCAMENTO='ITR' AND LANCAMENTO IN(2215)
+
+
+SELECT * FROM CTB_FILIAL_RATEIO
+
+
