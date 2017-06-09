@@ -2,16 +2,16 @@ select * from faturamento
 where EMISSAO between '20170201' and '20170228' and NOME_CLIFOR like 'D ANJOU INTIMA' and TIPO_FATURAMENTO='ORDENS DE SERVIÇO'
 order by NF_SAIDA
 
-select * from ENTRADAS
-where DATA_DIGITACAO >= '20170222' AND  EMISSAO <= '20170222'
+select from ENTRADAS
+where DATA_DIGITACAO = '20170307'
 
-delete from ENTRADAS
-where NF_ENTRADA='0027541'
+select * from ENTRADAS_ITEM
+where NF_ENTRADA='0031124        '
 
 --where DATA_DIGITACAO = '20170217' and tipo_entradas='BENEFICIAMENTO' and natureza='230.01'
 
 SELECT * from ENTRADAS_ITEM
-WHERE ORIGEM_ITEM IS NULL
+WHERE NF_ENTRADA like '%0031124%' -- ORIGEM_ITEM IS NULL
 
 select * From DRLINGERIE.DBO.produtos 
 where produto='51309-K5'
@@ -27,7 +27,10 @@ SELECT REPLACE('51309L19','K','-K')
 SELECT * FROM IMPORT_XML_NFE_REFERENCIAS_ORIGEM_ITEM
 where referencia='51309-K5'
 
-SELECT * FROM ENTRADAS_ITEM
+SELECT NF_ENTRADA,* FROM ENTRADAS_ITEM
+WHERE REFERENCIA='50.30.0001'
+
+
 
 --- visualizar
 select *  FROM NFE_XML
@@ -120,6 +123,7 @@ SELECT
 	,              NFe.value('../dest[1]/email[1]','varchar(80)') as dest_email
 	,              NFe.value('../infAdic[1]/infCpl[1]','varchar(max)') as infAdic
 FROM @XML.nodes('//infNFe/ide') AS NFes(NFe) -- Caminho que ira iniciar a varredura
+where not exists (select * from XML_NFE_CAPA where chNFe=NFe.value('../../../protNFe[1]/infProt[1]/chNFe[1]', 'varchar(44)'))
 
 -- ITENS NFE
 DECLARE @XML XML
@@ -177,6 +181,7 @@ SELECT
 ,      NFe.value('imposto[1]/COFINS[1]/COFINSAliq[1]/pCOFINS[1]','numeric(18,4)') AS COFINS_pCOFINS
 ,      NFe.value('imposto[1]/COFINS[1]/COFINSAliq[1]/vCOFINS[1]','numeric(14,2)') AS COFINS_vCOFINS
 FROM @XML.nodes('//infNFe/det') AS NFes(NFe) -- Caminho que ira iniciar a varredura
+where not exists (select * from XML_NFE_ITEM where chNFe=NFe.value('../../../protNFe[1]/infProt[1]/chNFe[1]', 'varchar(44)') and nItem=NFe.value('@nItem', 'int'))
 order by nItem
 
 
@@ -496,8 +501,115 @@ JOIN (SELECT A.*,B.COD_CLIFOR_SACADO FROM CTB_EXCECAO_IMPOSTO A JOIN PARAMETROS_
 LEFT JOIN PRODUTOS G ON G.PRODUTO = case when charindex('O.S.:',A.xProd) > 0 then substring(A.CPROD,9,12) else A.CPROD end
 LEFT JOIN MATERIAIS H ON H.MATERIAL=A.CPROD
 JOIN PARAMETROS_IMPORT_XML I ON I.natop=B.natOp 
-where a.chNFe='23170200119633000113550560000311391031006312'
+where a.chNFe='23170200119633000113550560000311241844602590'
 AND NOT EXISTS(SELECT * FROM ENTRADAS_ITEM WHERE NF_ENTRADA=B.NNF AND CODIGO_ITEM=A.CPROD)
+
+
+	--- ENTRADAS_ITEM
+	INSERT INTO ENTRADAS_ITEM(
+	NOME_CLIFOR,                                
+	NF_ENTRADA,                                 
+	SERIE_NF_ENTRADA,                           
+	ITEM_IMPRESSAO,                             
+	SUB_ITEM_TAMANHO,                           
+	DESCRICAO_ITEM,                             
+	QTDE_ITEM,                                  
+	PRECO_UNITARIO,                             
+	CODIGO_ITEM,                                
+	DESCONTO_ITEM,                              
+	VALOR_ITEM,                                 
+	COD_TABELA_FILHA,                           
+	TRIBUT_ICMS,                                
+	TRIBUT_ORIGEM,                              
+	UNIDADE,                                    
+	CLASSIF_FISCAL,                             
+	CODIGO_FISCAL_OPERACAO,                     
+	PESO,                                       
+	CONTA_CONTABIL,                             
+	QTDE_RETORNAR_BENEFICIAMENTO,               
+	FAIXA,                                      
+	COMISSAO_ITEM,                              
+	COMISSAO_ITEM_GERENTE,                      
+	INDICADOR_CFOP,                             
+	QTDE_DEVOLVIDA,                             
+	PORCENTAGEM_ITEM_RATEIO,                    
+	ID_EXCECAO_IMPOSTO,                         
+	REFERENCIA,                                 
+	REFERENCIA_ITEM,                            
+	REFERENCIA_PEDIDO,                          
+	VALOR_ENCARGOS,                             
+	VALOR_DESCONTOS,                            
+	NAO_SOMA_VALOR,                             
+	VALOR_ENCARGOS_IMPORTACAO,                  
+	RATEIO_FILIAL,                              
+	RATEIO_CENTRO_CUSTO,                        
+	VALOR_ENCARGOS_ADUANEIROS,                  
+	PORC_ITEM_RATEIO_FRETE,                     
+	ITEM_NFE,                                   
+	MPADRAO_SEGURO_ITEM,                        
+	MPADRAO_FRETE_ITEM,                         
+	MPADRAO_ENCARGO_ITEM,                       
+	ORIGEM_ITEM,
+	PRECO_UNITARIO_ORIGINAL)
+
+
+	SELECT 
+	C.NOME_CLIFOR,
+	REPLICATE(0, (7-LEN(RTRIM(B.nNF))))+RTRIM(B.nNF) AS NF_ENTRADA,
+	B.SERIE,
+	REPLICATE(0, (4-LEN(RTRIM(A.nItem))))+RTRIM(A.nItem) AS  nItem,
+	0,
+	case when charindex('O.S.:',A.xProd) > 0 then substring(A.XPROD,1,charindex('O.S.:',A.xProd)-1) else A.XPROD end,
+	A.QTRIB,
+	A.VUNTRIB,
+	case when charindex('O.S.:',A.xProd) > 0 then substring(A.CPROD,9,12) else A.CPROD end,
+	0,
+	A.VPROD,
+	'R',
+	F.TRIBUT_ICMS,
+	ISNULL(F.TRIBUT_ORIGEM,0),
+	A.UCOM,
+	A.NCM,
+	I.CODIGO_FISCAL_OPERACAO,
+	0,
+	J.CONTA_CONTABIL,
+	0,
+	'1',
+	0,
+	0,
+	J.INDICADOR_CFOP,
+	0,
+	((A.QTRIB*A.VUNTRIB)/E.vProd)*100,
+	F.ID_EXCECAO_IMPOSTO,
+	case when charindex('O.S.:',A.xProd) > 0 then substring(A.CPROD,9,12) else A.CPROD end,
+	case when charindex('O.S.:',A.xProd) > 0 then substring(A.CPROD,9,12) else A.CPROD end,
+	NULL,
+	0,
+	0,
+	0,
+	0,
+	D.CLIFOR,
+	I.RATEIO_CENTRO_CUSTO,
+	0,
+	((A.QTRIB*A.VUNTRIB)/E.vProd)*100,
+	A.NITEM,
+	0,
+	0,
+	0,
+	J.ORIGEM_ITEM,
+	A.VUNTRIB
+	FROM XML_NFE_ITEM A
+	JOIN XML_NFE_CAPA B ON B.chNFe=A.chNFe
+	JOIN (SELECT CLIFOR,CGC_CPF,NOME_CLIFOR,RAZAO_SOCIAL FROM CADASTRO_CLI_FOR N JOIN PARAMETROS_IMPORT_XML X ON X.COD_CLIFOR_SACADO=N.CLIFOR) C ON C.CGC_CPF=B.emit_CNPJ
+	JOIN (SELECT CLIFOR,CGC_CPF,NOME_CLIFOR,RAZAO_SOCIAL FROM CADASTRO_CLI_FOR N JOIN PARAMETROS_IMPORT_XML X ON X.RATEIO_FILIAL=N.CLIFOR) D ON D.CGC_CPF=B.dest_CNPJ
+	JOIN (SELECT chNfe, qTrib=SUM(qTrib),vProd=SUM(vProd) FROM XML_NFE_ITEM GROUP BY chNfe) E ON E.chNFe=A.chNFe
+	JOIN (SELECT A.*,B.COD_CLIFOR_SACADO FROM CTB_EXCECAO_IMPOSTO A JOIN PARAMETROS_IMPORT_XML B ON B.NATUREZA_ENTRADA=A.NATUREZA_ENTRADA WHERE A.INATIVO=0) F ON F.COD_CLIFOR_SACADO=C.CLIFOR
+	--LEFT JOIN PRODUTOS G ON G.PRODUTO = case when charindex('O.S.:',A.xProd) > 0 then substring(A.CPROD,9,12) else A.CPROD end
+	--LEFT JOIN MATERIAIS H ON H.MATERIAL=A.CPROD
+	JOIN PARAMETROS_IMPORT_XML I ON I.natop=B.natOp 
+	LEFT JOIN IMPORT_XML_NFE_REFERENCIAS_ORIGEM_ITEM J ON J.REFERENCIA=case when charindex('O.S.:',A.xProd) > 0 then substring(A.CPROD,9,12) else A.CPROD end
+	where a.chNFe='23170200119633000113550560000311241844602590'	--AND NOT EXISTS(SELECT * FROM ENTRADAS_ITEM WHERE NF_ENTRADA=B.NNF AND CODIGO_ITEM=A.CPROD)
+
 
 SELECT * FROM PARAMETROS_IMPORT_XML
 
@@ -517,7 +629,7 @@ SELECT * FROM CADASTRO_CLI_FOR
 WHERE NOME_CLIFOR LIKE '%D.R.%'
 
 SELECT * FROM FILIAIS
-WHERE FILIAL LIKE '%W%M%'
+WHERE FILIAL LIKE '%%'
 
 SELECT * FROM PARAMETROS_IMPORT_XML
  
@@ -530,7 +642,7 @@ INSERT INTO [dbo].[PARAMETROS_IMPORT_XML]
            ,[RATEIO_FILIAL]
            ,[COD_CLIFOR_SACADO]
 		   ,natop)
-VALUES    ( '1901','230.01','21','BENEFICIAMENTO','000030','600132','REMESSA PARA BENEFICIAMENTO.')
+VALUES    ( '1901','230.01','21','BENEFICIAMENTO','601407','600132','REMESSA PARA BENEFICIAMENTO.')
 
 
 -- TABELA PARAMETROS PARA IMPORT DE XML
@@ -740,6 +852,7 @@ GO
 
 
 SELECT * FROM IMPORT_XML_NFE_REFERENCIAS_ORIGEM_ITEM
+WHERE INDICADOR_CFOP IS NULL
 
 --- ORIGEM_ITEM
 INSERT INTO IMPORT_XML_NFE_REFERENCIAS_ORIGEM_ITEM (REFERENCIA,ORIGEM_ITEM,CONTA_CONTABIL,INDICADOR_CFOP) 
