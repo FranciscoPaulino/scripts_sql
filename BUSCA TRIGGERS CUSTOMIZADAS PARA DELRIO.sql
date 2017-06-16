@@ -1,0 +1,42 @@
+SELECT     name, OBJECT_NAME(parent_obj) AS tabela
+FROM         sysobjects
+WHERE     (xtype = 'TR') and name like 'DR%' OR NAME LIKE 'LDR%' and OBJECT_NAME(parent_obj)  is not null
+
+
+sp_helptext DR_TI_ENTRADAS_ITEM
+sp_helptext DR_TI_ESTOQUE_RET1_MAT
+sp_helptext LDR_TI_VENDAS
+sp_helptext LDR_TI_VALIDA_MUNICIPO_IBGE
+sp_helptext LDR_TU_VENDAS
+sp_helptext DR_TI_PRODUCAO_PROGRAMA
+sp_helptext LDR_TU_VALIDA_MUNICIPO_IBGE
+sp_helptext DR_TU_VENDAS
+sp_helptext DR_TI_FATURAMENTO
+sp_helptext LDR_TI_PRODUCAO_ORDEM_COR
+sp_helptext LDR_TI_CTB_BORDERO
+sp_helptext LDR_TI_CTB_BORDERO_PARCELA_CMD
+sp_helptext LDR_TI_VALIDA_TRANSPORTADORA_ENTRADA
+sp_helptext LDR_TU_VALIDA_TRANSPORTADORA_ENTRADA
+sp_helptext DR_TD_VENDAS_PROD_EMBALADO
+sp_helptext LDR_TI_VENDAS_LOTE
+sp_helptext LDR_TI_VENDAS_LOTE_PROD
+sp_helptext LDR_TI_VENDAS_MATERIAL
+sp_helptext LDR_TU_MATERIAIS
+sp_helptext DR_TI_CTB_A_PAGAR_PARCELA
+sp_helptext DR_TU_CTB_A_PAGAR_PARCELA
+sp_helptext LDR_TI_ESTOQUE_SAI_MAT
+sp_helptext DR_TI_REPRESENTANTES
+sp_helptext DR_LXU_VENDAS_PRODUTO
+sp_helptext DR_LXI_VENDAS_PRODUTO
+sp_helptext DR_TI_PRODUCAO_ORDEM_SERVICO
+sp_helptext DR_TI_FATURAMENTO_CAIXAS
+sp_helptext DR_TU_FATURAMENTO_CAIXAS
+sp_helptext DR_TI_FATURAMENTO_ITEM
+sp_helptext DR_TU_PRODUCAO_ORDEM_SERVICO
+sp_helptext DR_TI_PRODUTOS
+sp_helptext DR_TU_PRODUTOS
+sp_helptext DR_TI_PRODUCAO_OS_TAREFAS
+
+
+
+

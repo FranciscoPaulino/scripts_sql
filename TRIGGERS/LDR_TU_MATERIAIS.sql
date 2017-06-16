@@ -1,0 +1,44 @@
+CREATE trigger [dbo].[LDR_TU_MATERIAIS] 
+on [dbo].[MATERIAIS] 
+for UPDATE NOT FOR REPLICATION 
+as
+/* UPDATE trigger on MATERIAIS */
+begin
+  declare  @numrows int,
+           @nullcnt int,
+           @validcnt int,
+           @insMATERIAL char(11),
+           @delMATERIAL char(11),
+           @errno   int,
+           @errmsg  varchar(255),
+           @data_cadastramento datetime
+
+  select @numrows = @@rowcount
+
+  /* CTB_EXCECAO_GRUPO R/2576 MATERIAIS ON CHILD UPDATE RESTRICT */
+  if
+    update(DESC_MATERIAL)
+  begin
+    select @nullcnt = 0
+    select @data_cadastramento = MATERIAIS.DATA_CADASTRAMENTO
+           from inserted,MATERIAIS
+     where
+           inserted.MATERIAL = MATERIAIS.MATERIAL
+           
+    if (@data_cadastramento is not null and (SUSER_NAME() NOT IN ('CRISTINA','DANIELE','SOLANGE','LALESKA','SA','HELENA','NATHANA'))) 
+    begin
+      select @errno  = 30007,
+             @errmsg = 'Impossível Atualizar  #MATERIAIS ( DESCRIÇÃO ) #porque #DATA_CADASTRAMENTO #já existe.'
+      goto error
+    end
+  end
+
+  return
+error:
+    raiserror @errno @errmsg
+    rollback transaction
+end
+
+
+
+
