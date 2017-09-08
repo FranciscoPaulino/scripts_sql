@@ -1,8 +1,15 @@
 SELECT * FROM W_MONITORA_EMAIL
-WHERE DATAENVIO >='20170118' AND SITUACAO = '2 - Falhou'
+WHERE DATAENVIO >='20170118' --AND SITUACAO = '2 - Falhou'
+ORDER BY  DATAENVIO 
+
+-- tentar novamente, e-mails com falha no envio
+update msdb.dbo.sysmail_mailitems
+set sent_status = 3
+where send_request_date >='2017-08-16 15:00:02.533' and send_request_date <= '2017-08-16 15:30:01.177'
+
 
 SELECT * FROM W_MONITORA_EMAIL
-WHERE ASSUNTO LIKE '%Grade ou Qtde Total alterada depois de aprovado%' --destinatario='financeiro1@drling.com.br' DATAENVIO >='20170118' AND SITUACAO = '2 - Falhou'
+WHERE destinatario LIKE 'VIAPETIT%' --DATAENVIO >='20170118' AND SITUACAO = '2 - Falhou'
 ORDER BY DATAENVIO
 
 SELECT * FROM VENDAS_PRODUTO
